@@ -134,7 +134,7 @@ const Login = () => {
             />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Absensi Magang DPR RI
+            Absensi peserta GIS Program
           </h1>
           <p className="text-gray-600">Partai Golkar</p>
         </div>
