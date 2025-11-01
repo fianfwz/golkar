@@ -178,7 +178,7 @@ export default function Absensi() {
               />
             </div>
             <div className="text-center sm:text-left">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Absensi Magang</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Absensi peserta GIS Program</h1>
               <p className="text-xs sm:text-sm text-amber-100">DPR RI - Partai Golkar</p>
             </div>
           </div>
