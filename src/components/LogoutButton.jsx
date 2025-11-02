@@ -8,9 +8,7 @@ function LogoutButton() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    console.log('🔴 Logout button clicked');
     logout();
-    console.log('🔴 Logout executed, navigating to /');
     navigate("/", { replace: true });
   };
 

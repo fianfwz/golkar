@@ -20,8 +20,6 @@ export default function History() {
           return;
         }
 
-        console.log("👤 User ID:", user.id);
-
         const { data, error } = await supabase
           .from("absensi")
           .select("id, nama, tanggal, waktu, foto_url, user_id, created_at")
@@ -30,10 +28,8 @@ export default function History() {
 
         if (error) throw error;
 
-        console.log("📊 Data riwayat:", data);
         setRiwayat(data || []);
       } catch (err) {
-        console.error("Error fetching riwayat:", err.message);
         setError("Gagal memuat riwayat absensi. Silakan coba lagi.");
       } finally {
         setLoading(false);

@@ -65,15 +65,8 @@ const Register = () => {
         return;
       }
 
-      console.log('🔐 Starting password hashing...');
-      console.log('Original password:', formData.password);
-      
       // 🔒 CRITICAL: Hash password dengan bcrypt
       const hashedPassword = await bcrypt.hash(formData.password, 10);
-      
-      console.log('✅ Password hashed successfully!');
-      console.log('Hash (first 30 chars):', hashedPassword.substring(0, 30));
-      console.log('Hash length:', hashedPassword.length);
 
       // Pastikan hash valid (harus dimulai dengan $2a$ atau $2b$)
       if (!hashedPassword.startsWith('$2a$') && !hashedPassword.startsWith('$2b$')) {
@@ -87,23 +80,20 @@ const Register = () => {
           {
             nama: formData.nama,
             email: formData.email,
-            password: hashedPassword // ✅ HARUS hash, BUKAN plain text!
+            password: hashedPassword
           }
         ])
         .select();
 
       if (error) {
-        console.error('Database error:', error);
         setError('Gagal registrasi: ' + error.message);
       } else {
-        console.log('✅ User registered successfully with hashed password');
         setSuccess('Registrasi berhasil! Password Anda telah dienkripsi dengan aman. Mengalihkan ke halaman login...');
         setTimeout(() => {
           navigate('/login');
         }, 2500);
       }
     } catch (err) {
-      console.error('Registration error:', err);
       setError('Terjadi kesalahan saat registrasi: ' + err.message);
     } finally {
       setLoading(false);
@@ -118,21 +108,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo & Header */}
-        <div className="text-center mb-8">
-          <div className="inline-block bg-white p-4 rounded-3xl shadow-2xl mb-4">
-            <img
-              src="/images/logo-golkar.png"
-              alt="Logo Golkar"
-              className="w-20 h-20"
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Absensi Magang DPR RI
-          </h1>
-          <p className="text-gray-600">Partai Golkar</p>
-        </div>
-
+      
         {/* Register Card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Header */}
@@ -233,13 +209,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Info Box */}
-              <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-green-50 rounded-2xl shadow-md">
-                <p className="text-xs text-gray-700 text-center font-medium">
-                  <strong className="text-green-700">🔒 Keamanan:</strong> Password Anda akan dienkripsi dengan bcrypt (tidak dapat di-reverse)
-                </p>
-              </div>
-
               {/* Submit Button */}
               <button
                 type="submit"
@@ -259,13 +228,6 @@ const Register = () => {
                 </a>
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-green-500 text-white font-bold py-2 px-6 rounded-full shadow-lg inline-block text-sm">
-            🟡 Partai Golkar 🟢
           </div>
         </div>
       </div>

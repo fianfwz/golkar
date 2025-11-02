@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute";
-import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Absensi from "./pages/Absensi";
 import History from "./pages/History";
@@ -13,7 +12,6 @@ function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-1">
           <Routes>
             {/* 🟢 Public Routes (hanya untuk yang belum login) */}

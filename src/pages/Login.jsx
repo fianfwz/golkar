@@ -50,17 +50,12 @@ const Login = () => {
         .maybeSingle();
 
       if (userError) {
-        console.error("Database error:", userError);
         throw new Error("Terjadi kesalahan saat mengambil data user");
       }
 
       if (!userData) {
         throw new Error("Email tidak terdaftar");
       }
-
-      console.log("User found:", userData.email);
-      console.log("Password from DB (first 20 chars):", userData.password?.substring(0, 20));
-      console.log("Password input:", formData.password);
 
       // 🔒 Cek apakah password di database adalah bcrypt hash
       const isBcryptHash = userData.password?.startsWith('$2a$') || 
@@ -69,14 +64,11 @@ const Login = () => {
 
       if (isBcryptHash) {
         // Password adalah bcrypt hash - gunakan bcrypt.compare
-        console.log("Detected bcrypt hash, using bcrypt.compare");
         try {
           const isPasswordValid = await bcrypt.compare(
             formData.password,
             userData.password
           );
-
-          console.log("Bcrypt compare result:", isPasswordValid);
 
           if (isPasswordValid) {
             setUser({
@@ -92,12 +84,10 @@ const Login = () => {
             throw new Error("Password salah");
           }
         } catch (bcryptError) {
-          console.error("Bcrypt error:", bcryptError);
           throw new Error("Error saat memverifikasi password");
         }
       } else {
         // Password adalah plain text (user lama)
-        console.log("Detected plain text password");
         if (userData.password === formData.password) {
           setUser({
             id: userData.id,
@@ -114,7 +104,6 @@ const Login = () => {
       }
 
     } catch (err) {
-      console.error("Login error:", err);
       setError(err.message || "Terjadi kesalahan saat login");
     } finally {
       setLoading(false);
@@ -122,22 +111,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-green-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-md">
         {/* Logo & Header */}
-        <div className="text-center mb-8">
-          <div className="inline-block bg-white p-4 rounded-3xl shadow-2xl mb-4">
-            <img
-              src="/images/logo-golkar.png"
-              alt="Logo Golkar"
-              className="w-20 h-20"
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Absensi peserta GIS Program
-          </h1>
-          <p className="text-gray-600">Partai Golkar</p>
-        </div>
+       
 
         {/* Login Card */}
         <div className="bg-white shadow-2xl rounded-3xl overflow-hidden">
@@ -231,13 +208,6 @@ const Login = () => {
                 </a>
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-green-500 text-white font-bold py-2 px-6 rounded-full shadow-lg inline-block text-sm">
-            🟡 Partai Golkar 🟢
           </div>
         </div>
       </div>

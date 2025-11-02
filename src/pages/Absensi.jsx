@@ -29,6 +29,8 @@ export default function Absensi() {
   const [loading, setLoading] = useState(false);
   const [webcamReady, setWebcamReady] = useState(false);
   const [webcamError, setWebcamError] = useState(null);
+  const [isHadirToday, setIsHadirToday] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(true);
 
   const savedUser = user || JSON.parse(sessionStorage.getItem("currentUser") || "{}");
   const userName = savedUser?.nama || savedUser?.name || savedUser?.email?.split('@')[0] || "User";
@@ -46,23 +48,22 @@ export default function Absensi() {
   );
 
   useEffect(() => {
-  if (
-    navigator.mediaDevices &&
-    typeof navigator.mediaDevices.enumerateDevices === "function"
-  ) {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(handleDevices)
-      .catch(() =>
-        setWebcamError("Tidak dapat mengakses daftar kamera. Periksa izin kamera.")
+    if (
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.enumerateDevices === "function"
+    ) {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then(handleDevices)
+        .catch(() =>
+          setWebcamError("Tidak dapat mengakses daftar kamera. Periksa izin kamera.")
+        );
+    } else {
+      setWebcamError(
+        "Browser Anda tidak mendukung akses kamera. Gunakan Chrome atau buka lewat HTTPS."
       );
-  } else {
-    setWebcamError(
-      "Browser Anda tidak mendukung akses kamera. Gunakan Chrome atau buka lewat HTTPS."
-    );
-  }
-}, [handleDevices]);
-
+    }
+  }, [handleDevices]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -85,6 +86,42 @@ export default function Absensi() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Check if user has already done attendance today
+  useEffect(() => {
+    const checkTodayAttendance = async () => {
+      if (!userId) {
+        setLoadingStatus(false);
+        return;
+      }
+
+      try {
+        const today = new Date().toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        const { data, error } = await supabase
+          .from("absensi")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("tanggal", today)
+          .limit(1);
+
+        if (error) throw error;
+
+        setIsHadirToday(data && data.length > 0);
+      } catch (err) {
+        // Error checking attendance
+      } finally {
+        setLoadingStatus(false);
+      }
+    };
+
+    checkTodayAttendance();
+  }, [userId]);
 
   const capture = useCallback(() => {
     if (!webcamRef.current) {
@@ -151,10 +188,11 @@ export default function Absensi() {
       ]);
       if (dbError) throw dbError;
 
-      setStatus("✅ Absen berhasil disimpan!");
+      setStatus("✅ Absen berhasil disimpan");
       setImage(null);
+      // Update status hadir setelah berhasil absen
+      setIsHadirToday(true);
     } catch (err) {
-      console.error(err);
       setStatus("❌ Terjadi kesalahan saat menyimpan absen.");
     } finally {
       setLoading(false);
@@ -164,7 +202,7 @@ export default function Absensi() {
   const goToHistory = () => navigate("/riwayat");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 flex flex-col items-center p-3 sm:p-4 md:p-6">
+    <div className="min-h-screen w-full bg-white flex flex-col items-center p-3 sm:p-4 md:p-6">
       {/* Header */}
       <header className="w-full max-w-4xl bg-gradient-to-r from-amber-400 to-amber-500 text-white py-3 px-4 sm:py-4 sm:px-6 rounded-2xl shadow-lg mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
@@ -177,8 +215,8 @@ export default function Absensi() {
                 className="w-10 h-10 sm:w-12 sm:h-12"
               />
             </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Absensi peserta GIS Program</h1>
+            <div className="text-left sm:text-left">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Absensi Peserta GIS Program</h1>
               <p className="text-xs sm:text-sm text-amber-100">DPR RI - Partai Golkar</p>
             </div>
           </div>
@@ -224,7 +262,16 @@ export default function Absensi() {
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
               <p className="text-xs opacity-90">Status Hari Ini</p>
-              <p className="text-base font-bold">Hadir</p>
+              {loadingStatus ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 size={14} className="animate-spin" />
+                  <p className="text-sm font-semibold">Memuat...</p>
+                </div>
+              ) : (
+                <p className={`text-base font-bold ${isHadirToday ? 'text-white' : 'text-amber-100'}`}>
+                  {isHadirToday ? '✅ Hadir' : '⏳ Belum Absen'}
+                </p>
+              )}
             </div>
           </div>
 

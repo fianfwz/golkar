@@ -8,51 +8,38 @@ export const AuthProvider = ({ children }) => {
 
   // Load user dari sessionStorage saat pertama kali
   useEffect(() => {
-    console.log('🟢 AuthContext: Checking session...');
-    
     try {
       const savedUser = sessionStorage.getItem('currentUser');
-      console.log('🟢 Raw sessionStorage:', savedUser);
       
       if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
         const parsedUser = JSON.parse(savedUser);
-        console.log('🟢 Parsed user:', parsedUser);
         
         // Validasi user object
         if (parsedUser && parsedUser.email && parsedUser.role) {
           setUser(parsedUser);
-          console.log('✅ User restored from session');
         } else {
-          console.log('❌ Invalid user data, clearing session');
           sessionStorage.removeItem('currentUser');
         }
-      } else {
-        console.log('⚠️ No valid session found');
       }
     } catch (e) {
-      console.error('❌ Error parsing session:', e);
       sessionStorage.removeItem('currentUser');
     } finally {
       setLoading(false);
-      console.log('🟢 Loading complete, user:', user);
     }
-  }, []); // HANYA JALAN SEKALI saat mount
+  }, []);
 
   // Simpan user ke sessionStorage setiap kali berubah
   useEffect(() => {
     if (user) {
-      console.log('💾 Saving user to session:', user);
       sessionStorage.setItem('currentUser', JSON.stringify(user));
     } else if (user === null) {
-      console.log('🗑️ Removing user from session');
       sessionStorage.removeItem('currentUser');
     }
   }, [user]);
 
   const logout = () => {
-    console.log('🔴 Logout called');
     setUser(null);
-    sessionStorage.clear(); // Clear semua session
+    sessionStorage.clear();
   };
 
   const value = { user, loading, setUser, logout };
